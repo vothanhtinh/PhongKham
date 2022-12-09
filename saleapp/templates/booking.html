@@ -1,0 +1,89 @@
+{% extends 'base.html'%}
+
+{%block title %}Booking{%endblock%}
+{%block content%}
+
+
+<div  style="background: url('https://minhduongads.com/wp-content/themes/minhduongads/images/bg-service.jpg') no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;color:#fff;margin-bottom:-40px;" >
+  <!-- Start Header form -->
+  <div class="text-center pt-5 ">
+    <img src="https://i.ibb.co/8cDgdFX/Logo.png" alt="network-logo" width="72" height="72" />
+    <h2>Đặt Lịch Khám</h2>
+  </div>
+
+
+  <!-- Start Card -->
+  <div class="card container" style="background-color: #e3ebe700;">
+    <!-- Start Card Body -->
+    <div class="card-body" style="padding-bottom:20px">
+      <!-- Start Form -->
+      <form id="bookingForm" action="#" method="" class="needs-validation" novalidate autocomplete="off" >
+        <!-- Start Input Name -->
+        <div class="form-group">
+          <label for="inputName">Tên</label>
+          <input type="text" class="form-control" id="inputName" name="name" placeholder="Võ Thành Tính" required />
+          <small class="form-text text-muted">Vui Lòng Nhập Tên... </small>
+        </div>
+        <!-- End Input Name -->
+
+        <!-- Start Input Email -->
+        <div class="form-group">
+          <label for="inputEmail">Email</label>
+          <input type="email" class="form-control" id="inputEmail" name="email" placeholder="vothanhtinh147@gmail.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required />
+          <small class="form-text text-muted">Vui lòng nhập đúng email...</small>
+        </div>
+        <!-- End Input Email -->
+
+        <!-- Start Input Telephone -->
+        <div class="form-group">
+          <label for="inputPhone">Số Điện Thoại</label>
+          <input type="tel" class="form-control" id="inputPhone" name="phone" placeholder="099xxxxxxx" pattern="\d{3}\d{3}\d{4}" required />
+          <small class="form-text text-muted">Vui lòng nhập đúng số điện thoại..</small>
+        </div>
+        <!-- End Input Telephone -->
+
+        <!-- Start Input Date , Start Time and End Time -->
+        <div class="form-row">
+          <!-- Start Input Date -->
+          <div class="form-group col-md-4">
+            <label for="inputDate">Ngày đặt lịch</label>
+            <input type="date" class="form-control" id="inputDate" name="date" required />
+            <small class="form-text text-muted">Vui lòng chọn ngày khám bệnh</small>
+          </div>
+          <!-- End Input Date -->
+
+
+        </div>
+        <!-- End Input Date , Start Time and End Time -->
+
+        <!-- Start Input Remark -->
+        <div class="form-group">
+          <label for="textAreaRemark">Ghi Chú</label>
+          <textarea class="form-control" name="remark" id="textAreaRemark" rows="2" ></textarea>
+        </div>
+        <!-- End Input Remark -->
+
+        <!-- Start Submit Button -->
+        <button class="btn btn-primary btn-block col-lg-2" type="submit" style="margin:20px auto;">Đặt Lịch</button>
+        <!-- End Submit Button -->
+      </form>
+      <!-- End Form -->
+    </div>
+    <!-- End Card Body -->
+  </div>
+  <!-- End Card -->
+
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+
+</div>
+    {%endblock%}
