@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    <title>Phieu Kham</title>
+</head>
+<body>
+<div class="header">
+    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <!-- Brand -->
+    <a class="navbar-brand" href="/doctor-login">QUẢN LÝ PHÒNG MẠCH</a>
+
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="{{ url_for('home') }}">
+
+                    {{ current_user.username }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-success" href="/doctor-logout">Đăng xuất</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link text-success" href=/doctor-login>Đăng nhập</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Toggler/collapsibe Button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</nav>
+
+{% if current_user.is_authenticated %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="container">
+            <h1 class="text-center">Lập phiếu khám</h1>
+            {% if err_msg %}
+            <h1 class="text-danger">Bị Lỗi: {{ err_msg}}</h1>
+            {% else %}
+            <h1 class="text-info">{{ msg_success }}</h1>
+            {% endif %}
+            <form method="post" action="/add-phieu-kham">
+                <div class="form-group">
+                    <label for="name">Họ tên</label>
+                    <input type="text" name="name" required id="name" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label for="ngaylap">Ngày khám</label>
+                    <input type="date" name="ngaylap" required id="ngaylap" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label for="trieuChung">Triệu chứng</label>
+                    <input type="text" name="trieuChung" required id="trieuChung" class="form-control"/>
+                </div>
+                <div class="form-group">
+                    <label for="chanDoan">Dự đoán loại bệnh</label>
+                    <input type="text" name="chanDoan" required id="chanDoan" class="form-control"/>
+                </div>
+
+                <table class="table">
+                    <tr>
+                        <td>Thuốc</td>
+                        <td>Đơn vị</td>
+                        <td>Cách dùng</td>
+                        <td>Số lượng</td>
+                    </tr>
+
+                    {% for i in range(30) %}
+                    <tr>
+                        <td>
+                            <select class="medicine" onchange="addToCart({{ i }})">
+                                <option value="0">Select</option>
+                                {% for m in Thuoc %}
+                                <option value="{{m.id}}" name="name" id="cart{{m.id}}">{{ m.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="unit"></td>
+                        <td>
+                            <div class="CachSD"></div>
+                        </td>
+
+                        <td>
+                            <div class="form-group">
+                                <input class="form-control" type="number" value="1" name="quantity" min="1"
+                                       onblur="updateQuantity({{i}}, this)"
+                                       style="width:100px"/>
+                            </div>
+                        </td>
+                        <!--                <td>-->
+                        <!--                    <input class="btn btn-danger" value="Xóa" type="button" onclick="deleteMedicineCart({{i}})"/>-->
+                        <!--                </td>-->
+                    </tr>
+                    {% endfor %}
+                </table>
+                <input type="submit" value="Lưu phiếu" class="btn btn-danger" onclick="saveMedicalBill()"/>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <form methods='post' action="/add-phieu-kham">
+            <div class="container">
+                <h1 class="text-center">Thuốc đã kê toa cho bệnh nhân</h1>
+                <div class="form-group">
+                    <label for="fullname">Tên bệnh nhân</label>
+                    <input type="text" name="fullname" id="fullname" class="form-control" onblur="searchMedicalHistory()"/>
+                </div>
+                <p></p>
+                <table class="table">
+                    <tr>
+                        <th>Tên thuốc</th>
+                        <th>Số lượng</th>
+                    </tr>
+                    {%for i in range(30)%}
+                    <tr>
+                        <td class="name"></td>
+                        <td class="quantity"></td>
+                    </tr>
+                    {%endfor%}
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="container">
+    <h1 class="text-center">Đăng nhập</h1>
+    {% if err_msg %}
+    <h4 class="alter alter-danger">Error: {{err_msg}}</h4>
+    {% endif %}
+
+    <form method="post" action="/doctor-login">
+        <div class="form-group">
+            <label for="username">Tên đăng nhập</label>
+            <input type="text" name="username" required id="username" class="form-control"/>
+        </div>
+        <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <input type="password" name="password" required id="password" class="form-control"/>
+        </div>
+        <input type="submit" value="Đăng nhập" class="btn btn-success"/>
+    </form>
+</div>
+
+{% endif %}
+
+</div>
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>
+
+

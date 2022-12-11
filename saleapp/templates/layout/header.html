@@ -1,29 +1,35 @@
-
 <nav class="navbar navbar-expand-sm navbar-dark bg-light text-dark">
-  <div class="container-fluid">
-     <img class="logo_image" src="{{url_for('static',filename='/image/logo.png')}}">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="mynavbar">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a href="#" class="nav-link px-4 text-dark ">Trang Chủ</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link px-4 text-dark">Giới Thiệu</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link px-4 text-dark">Liên Hệ</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link px-4 text-dark">Đặt Lịch Khám</a>
-        </li>
-      </ul>
-      <div class="d-flex">
-        <button type="button" class="btn  btn-outline-info me-2 ">Đăng Nhập</button>
-          <button type="button" class="btn btn-info">Đăng Ký</button>
-      </div>
+    <div class="container-fluid">
+        <img class="logo_image" src="{{url_for('static',filename='/image/logo.png')}}">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-link px-4 text-dark ">Trang Chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link px-4 text-dark">Giới Thiệu</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link px-4 text-dark">Liên Hệ</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="/booking" class="nav-link px-4 text-dark">Đặt Lịch Khám</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="/logout">Đăng xuất</a>
+                </li>
+            </ul>
+                {% else %}
+            </ul>
+            <div class="d-flex">
+                <button type="button" class="btn  btn-outline-info me-2 "><a href="/login">Đăng Nhập</a></button>
+                <button type="button" class="btn btn-info"><a href="/register">Đăng Ký</a></button>
+            </div>
+          {% endif %}
+        </div>
     </div>
-  </div>
 </nav>
