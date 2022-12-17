@@ -99,6 +99,7 @@ def add_Bills(PhieuKhamBenh, cart):
     db.session.commit()
 
 
+
 def bill_stats(month):
     p = total_bill(month)
     q = p[0]
