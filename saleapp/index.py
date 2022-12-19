@@ -4,7 +4,7 @@ from flask import render_template, request, redirect, session, jsonify
 from flask_login import current_user, login_user, logout_user
 from saleapp import app, dao, admin, login_manager, utils
 from saleapp.decorators import annonynous_user
-from saleapp.models import UserRole, Thuoc
+from saleapp.models import UserRole, Thuoc, HoaDon
 
 
 @app.route("/")
@@ -154,16 +154,36 @@ def add_phieu_kham():
         created_date = datetime.now()
         trieuChung = request.form.get('trieuChung')
         chanDoan = request.form.get('chanDoan')
-        key = app.config['CART_KEY']
-        cart = session.get(key) if key in session else {}
-        dao.add_MedicalBill(fullname=fullname, created_date=created_date, chanDoan=chanDoan, trieuChung=trieuChung,
+        try:
+            key = app.config['CART_KEY']
+            cart = session.get(key)
+            dao.add_MedicalBill(fullname=fullname, ngaylap=created_date, chanDoan=chanDoan, trieuChung=trieuChung,
                                 cart=cart)
-        # except Exception as err:
-        #     err_msg = "Hệ thống báo lỗi " + str(err)
-        # else:
-        #     msg_success = "Lưu phiếu thành công"
-        #     del session[key]
-    return render_template('phieu_kham.html', err_msg=err_msg)
+        except Exception as err:
+            err_msg = "Hệ thống báo lỗi " + str(err)
+        else:
+            msg_success = "Lưu phiếu thành công"
+            del session[key]
+        medicine = Thuoc.query.all()
+    return render_template('phieu_kham.html', err_msg=err_msg, Thuoc=medicine)
+
+
+@app.route("/api/update-quantity", methods=['put'])
+def update_quantity():
+    data = request.json
+    id = str(data.get('id'))
+    quantity = data.get('soLuong')
+
+    try:
+        key = app.config['CART_KEY']
+        cart = session.get(key)
+        if cart and id in cart:
+            cart[id]['soLuong'] = quantity
+        session[key] = cart
+    except:
+        return jsonify({'code': 400})
+
+    return jsonify({'code': 200})
 
 
 @app.route("/api/add-medicine-to-cart", methods=['POST'])
@@ -180,9 +200,8 @@ def add_medicine_to_cart():
     # kiểm tra đã có giỏ hàng chưa
     if key in session:
         cart = session[key]  # có rồi
-
-    if id in cart:
-        cart[id]['soLuong'] = cart[id]['soLuong'] + 1
+        if id in cart:
+            cart[id]['soLuong'] = cart[id]['soLuong'] + 1
     else:
         cart[id] = {
             'id': id,
@@ -198,6 +217,39 @@ def add_medicine_to_cart():
         'donViThuoc_id': unit,
         'CachSD': CachSD
     })
+
+
+@app.route("/staff_login", methods=['get', 'post'])
+@annonynous_user
+def staff_login():
+    err_msg = ''
+    if request.method.__eq__('POST'):
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = dao.check_login(username=username, password=password, role=UserRole.NHANVIENTHANHTOAN)
+        if user:
+            login_user(user=user)
+            return redirect('/bills_staff')
+        else:
+            err_msg = 'Tên đăng nhập hoặc mật khẩu không chính xác!!!'
+
+    return render_template('hoadon.html', err_msg=err_msg)
+
+
+@app.route("/staff_logout")
+def staff_logout():
+    logout_user()
+    return redirect("/staff_login")
+
+
+@app.route("/bills_staff/", methods=['get', 'post'])
+def bills_staff():
+    bills = HoaDon.query.all()
+    medicine_bill_id = request.form.get('medicine_bill_id')
+    if medicine_bill_id:
+        return render_template('hoadon.html', bills=dao.search_medicine_bill_by_id(medicine_bill_id))
+    return render_template('hoadon.html', bills=bills)
 
 
 if __name__ == "__main__":

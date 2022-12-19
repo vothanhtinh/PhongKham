@@ -11,33 +11,33 @@
     <title>Phieu Kham</title>
 </head>
 <body>
-<div class="header">
-    <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-    <!-- Brand -->
-    <a class="navbar-brand" href="/doctor-login">QUẢN LÝ PHÒNG MẠCH</a>
+<nav class="navbar navbar-expand-sm navbar-dark bg-light text-dark">
+    <div class="container-fluid">
+        <img class="logo_image" src="{{url_for('static',filename='/image/logo.png')}}">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="{{ url_for('home') }}">
+                        {{ current_user.username }}
+                    </a>
+                </li>
 
-    <!-- Navbar links -->
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav">
-            {% if current_user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link text-danger" href="{{ url_for('home') }}">
+                <li class="nav-item">
+                    <a class="nav-link text-success" href="/doctor-logout">Đăng xuất</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link text-success" href="/doctor-login">Đăng nhập</a>
+                </li>
+                {% endif %}
+            </ul>
 
-                    {{ current_user.username }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-success" href="/doctor-logout">Đăng xuất</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link text-success" href=/doctor-login>Đăng nhập</a>
-            </li>
-            {% endif %}
-        </ul>
+        </div>
     </div>
-
-    <!-- Toggler/collapsibe Button -->
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -79,7 +79,7 @@
                         <td>Số lượng</td>
                     </tr>
 
-                    {% for i in range(30) %}
+                    {% for i in range(7) %}
                     <tr>
                         <td>
                             <select class="medicine" onchange="addToCart({{ i }})">
@@ -107,14 +107,14 @@
                     </tr>
                     {% endfor %}
                 </table>
-                <input type="submit" value="Lưu phiếu" class="btn btn-danger" onclick="saveMedicalBill()"/>
+                <input type="submit" value="Lưu phiếu" class="btn btn-info" onclick="saveMedicalBill()"/>
             </form>
         </div>
     </div>
     <div class="col-md-6">
         <form methods='post' action="/add-phieu-kham">
             <div class="container">
-                <h1 class="text-center">Thuốc đã kê toa cho bệnh nhân</h1>
+                <h1 class="text-center">Tìm Kiếm Toa Thuốc</h1>
                 <div class="form-group">
                     <label for="fullname">Tên bệnh nhân</label>
                     <input type="text" name="fullname" id="fullname" class="form-control" onblur="searchMedicalHistory()"/>
@@ -125,7 +125,7 @@
                         <th>Tên thuốc</th>
                         <th>Số lượng</th>
                     </tr>
-                    {%for i in range(30)%}
+                    {%for i in range(10)%}
                     <tr>
                         <td class="name"></td>
                         <td class="quantity"></td>

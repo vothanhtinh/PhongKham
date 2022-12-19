@@ -3,7 +3,7 @@ from flask_login import current_user
 from sqlalchemy import extract, func
 from saleapp import utils
 from saleapp.models import *
-from saleapp.utils import total_bill
+from saleapp.utils import count_cart, total_bill
 
 
 def get_user_by_id(user_id):
@@ -65,11 +65,14 @@ def check_login(username, password, role):
                                  User.password.__eq__(password),
                                  User.user_role.__eq__(role)).first()
 
+def get_medicine_by_id(id):
+    return Thuoc.query.get(id)
 
-def add_MedicalBill(fullname, created_date, chanDoan, trieuChung, cart):
+
+def add_MedicalBill(fullname, ngaylap, chanDoan, trieuChung, cart):
     medicinalBill = PhieuKhamBenh(
         fullname=fullname,
-        ngaylap=created_date,
+        ngaylap=ngaylap,
         chanDoan=chanDoan,
         trieuChung=trieuChung,
         user_id=current_user.id)
@@ -77,45 +80,50 @@ def add_MedicalBill(fullname, created_date, chanDoan, trieuChung, cart):
     db.session.add(medicinalBill)
     db.session.commit()
     # tạo một cái bill
-    add_Bills(PhieuKhamBenh=medicinalBill, cart=cart)
-    print(cart)
+    add_Bills(medicalBill=medicinalBill, cart=cart)
     # add medicalBillDetail
     for c in cart.values():
-        medicalBillDetail = ChiTietDonThuoc(phieuKhamBenh_id=c['id'],
+        medicalBillDetail = ChiTietDonThuoc(phieuKhamBenh_id=medicinalBill.id,
                                             Thuoc_id=c['id'],
                                             soLuong=c['soLuong'])
         db.session.add(medicalBillDetail)
     db.session.commit()
 
 
-def add_Bills(PhieuKhamBenh, cart):
-    user = get_user_by_id(PhieuKhamBenh.user_id)
-    bills = HoaDon(tenHD=PhieuKhamBenh.id,
-                   ngayLapHD=PhieuKhamBenh.ngaylap,
-                   tienKham=utils.count_cart(cart),
-                   user_id=user.id,
-                   phieuKhamBenh_id=PhieuKhamBenh.id)
+
+def add_Bills(medicalBill, cart):
+    user = get_user_by_id(medicalBill.user_id)
+    bills = HoaDon(tenHD=medicalBill.fullname, ngayLapHD=medicalBill.ngaylap,
+                  tienThuoc=utils.count_cart(cart),
+                  tienKham=100000,
+                  user_id=user.id,
+                  phieuKhamBenh_id=medicalBill.id)
     db.session.add(bills)
     db.session.commit()
 
 
-
-def bill_stats(month):
-    p = total_bill(month)
-    q = p[0]
-    x = q[0]
-
-    p = db.session.query(extract('day', HoaDon.ngayLapHD), func.sum(HoaDon.tienThuoc + HoaDon.tienKham),
-                         func.count(HoaDon.phieuKhamBenh_id),
-                         func.round(((func.sum(HoaDon.tienThuoc + HoaDon.tienKham) / x) * 100), 2)) \
-        .filter(extract('month', HoaDon.ngayLapHD) == month) \
-        .group_by(extract('day', HoaDon.ngayLapHD)) \
-        .order_by(extract('day', HoaDon.ngayLapHD))
-
-    return p.all()
+# def bill_stats(month):
+#     p = total_bill(month)
+#     q = p[0]
+#     x = q[0]
+#
+#     p = db.session.query(extract('day', HoaDon.ngayLapHD), func.sum(HoaDon.tienThuoc + HoaDon.tienKham),
+#                          func.count(HoaDon.phieuKhamBenh_id),
+#                          func.round(((func.sum(HoaDon.tienThuoc + HoaDon.tienKham) / x) * 100), 2)) \
+#         .filter(extract('month', HoaDon.ngayLapHD) == month) \
+#         .group_by(extract('day', HoaDon.ngayLapHD)) \
+#         .order_by(extract('day', HoaDon.ngayLapHD))
+#
+#     return p.all()
 
 
 def get_medicine_by_id(id):
     return Thuoc.query.get(id)
+
+def search_medicine_bill_by_id(medicine_bill_id):
+    return HoaDon.query.filter(HoaDon.phieuKhamBenh_id.__eq__(medicine_bill_id))
+
+
+
 
 
