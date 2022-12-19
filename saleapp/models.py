@@ -74,13 +74,21 @@ class Thuoc(BaseModel):
     CachSD = Column(String(500))
     donViThuoc_id = Column(Integer, ForeignKey(DonViThuoc.id), nullable=False)
     phieuKhamBenh = relationship('ChiTietDonThuoc', backref='Thuoc', lazy=True)
-    muc = relationship('DanhMuc', secondary='DanhMucThuoc', lazy='subquery', backref=backref('Thuoc', lazy=True))
+    # danh_muc = relationship('DanhMuc', secondary='DanhMucThuoc', lazy='subquery', backref=backref('Thuoc', lazy=True))
     def __str__(self):
         return self.name
 
 
-DanhMucThuoc = db.Table('DanhMucThuoc', Column('Thuoc_id', Integer, ForeignKey(Thuoc.id), primary_key=True), \
-                        Column('DanhMuc_id', Integer, ForeignKey(DanhMuc.id), primary_key=True))
+class DanhMucThuoc(BaseModel):
+    thuoc_id = Column(Integer, ForeignKey(Thuoc.id))
+    danh_muc_id = Column(Integer, ForeignKey(DanhMuc.id))
+    __table_args__ = (
+        db.UniqueConstraint('thuoc_id', 'danh_muc_id', name='unique_thuoc_danh_muc'),
+    )
+    thuocs = relationship('Thuoc', backref='danh_muc_thuoc', lazy=True)
+    danh_mucs = relationship('DanhMuc', backref='danh_muc_thuoc', lazy=True)
+    def __str__(self):
+        return str(self.danh_mucs)
 
 
 class PhieuKhamBenh(BaseModel):
@@ -123,114 +131,99 @@ class ChiTietDonThuoc(db.Model):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-        #
-        # #Đơn vị thuốc
-        # u1 = UnitMedicine(name='Chai')
-        # u2 = UnitMedicine(name='Vỹ')
-        # u3 = UnitMedicine(name='Viên')
+        # db.create_all()
+
+        # # Đơn vị thuốc
+        # u1 = DonViThuoc(name='Chai')
+        # u2 = DonViThuoc(name='Vỹ')
+        # u3 = DonViThuoc(name='Viên')
         # db.session.add(u1)
         # db.session.add(u2)
         # db.session.add(u3)
-        # #Loại thuốc
+        # # Loại thuốc
         # c1 = DanhMuc(name='Say xe')
         # c2 = DanhMuc(name='Đau bụng')
         # c3 = DanhMuc(name='Nhức đầu')
         # c4 = DanhMuc(name='Canxi')
-        # # db.session.add(c1)
-        # # db.session.add(c2)
-        # # db.session.add(c3)
-        # # db.session.add(c4)
-        # # db.session.commit()
+        # db.session.add(c1)
+        # db.session.add(c2)
+        # db.session.add(c3)
+        # db.session.add(c4)
         #
         # # #Thuốc
         # t1 = Thuoc(name='diphenhydramine', donViThuoc_id=3, giaThuoc=5000,
-        #               CachSD='Uống trước khi khởi hàng 30 phút', )
-        #
+        #            CachSD='Uống trước khi khởi hàng 30 phút', )
         # t2 = Thuoc(name='dimenhydrinate', donViThuoc_id=3, giaThuoc=6000,
-        #               CachSD='Uống trước khi khởi hàng 30 phút', )
+        #            CachSD='Uống trước khi khởi hàng 30 phút', )
         # t3 = Thuoc(name='cinnarizine', donViThuoc_id=3, giaThuoc=7000,
-        #               CachSD='Uống trước khi khởi hàng 30 phút', )
+        #            CachSD='Uống trước khi khởi hàng 30 phút', )
         # t4 = Thuoc(name='meclizine', donViThuoc_id=3, giaThuoc=8000,
-        #               CachSD='Uống trước khi khởi hàng 30 phút', )
+        #            CachSD='Uống trước khi khởi hàng 30 phút', )
         # t5 = Thuoc(name='Ostelin Vitamin D3 & Calcium.', donViThuoc_id=3, giaThuoc=10000,
-        #               CachSD='Uống vào buổi sáng', )
+        #            CachSD='Uống vào buổi sáng', )
         # t6 = Thuoc(name="Calcium Magnesium Zinc của Nature's Bounty", donViThuoc_id=3, giaThuoc=12000,
-        #               CachSD='Uống vào buổi sáng', )
+        #            CachSD='Uống vào buổi sáng', )
         # t7 = Thuoc(name='Total Calcium Magnesium + D3.', donViThuoc_id=3, giaThuoc=15000,
-        #               CachSD='Uống vào buổi sáng', )
+        #            CachSD='Uống vào buổi sáng', )
         # t8 = Thuoc(name='Kirkland Calcium 600mg + D3', donViThuoc_id=1, giaThuoc=18000,
-        #               CachSD='Uống vào buổi sáng', )
+        #            CachSD='Uống vào buổi sáng', )
         # t9 = Thuoc(name='nizatidine (Axid)', donViThuoc_id=2, giaThuoc=50000,
-        #               CachSD='Uống sau khi ăn', )
+        #            CachSD='Uống sau khi ăn', )
         # t10 = Thuoc(name='famotidine (Pepcid, Pepcid AC)', donViThuoc_id=3, giaThuoc=180000,
-        #               CachSD='Uống sau khi ăn', )
+        #             CachSD='Uống sau khi ăn', )
         # t11 = Thuoc(name='cimetidine (Tagamet, Tagamet HB)', donViThuoc_id=1,
-        #                giaThuoc=18000, CachSD='Uống sau khi ăn')
-        #
-        # t1.muc.add(c1)
-        # t1.muc.append(c1)
-        # t1.muc.append(c2)
+        #             giaThuoc=18000, CachSD='Uống sau khi ăn')
         # db.session.add(t1)
-        #
-        # # t2.muc.add(c1)
-        # t2.muc.append(c1)
-        # t2.muc.append(c3)
-        # db.session.add(t1)
-        #
-        # # t3.muc.add(c1)
-        # t3.muc.append(c1)
-        # t3.muc.append(c4)
-        # db.session.add(t1)
-        #
-        # # t4.muc.add(c1)
-        # t4.muc.append(c1)
-        # t4.muc.append(c4)
+        # db.session.add(t2)
+        # db.session.add(t3)
         # db.session.add(t4)
-        #
-        # # t5.muc.add(c2)
-        # t5.muc.append(c2)
-        # t5.muc.append(c3)
         # db.session.add(t5)
-        #
-        # # t6.muc.add(c2)
-        # t6.muc.append(c2)
         # db.session.add(t6)
-        #
-        # # t7.muc.add(c2)
-        # t7.muc.append(c2)
-        # t7.muc.append(c1)
         # db.session.add(t7)
-        #
-        # # t8.muc.add(c2)
-        # t8.muc.append(c2)
-        # t8.muc.append(c3)
         # db.session.add(t8)
-        #
-        # # t9.muc.add(c3)
-        # t9.muc.append(c3)
-        # t9.muc.append(c4)
         # db.session.add(t9)
-        #
-        # # t10.muc.add(c3)
-        # t10.muc.append(c3)
-        # t9.muc.append(c2)
-        # t9.muc.append(c1)
         # db.session.add(t10)
-        #
-        # # t11.muc.add(c4)
-        # t11.muc.append(c4)
-        # t11.muc.append(c3)
-        # t11.muc.append(c2)
-        # t11.muc.append(c1)
         # db.session.add(t11)
+
+
+        # dmt1 = DanhMucThuoc(thuoc_id=2, danh_muc_id=1)
+        # dmt2 = DanhMucThuoc(thuoc_id=2, danh_muc_id=3)
+        # db.session.add(dmt1)
+        # db.session.add(dmt2)
+        # dmt3 = DanhMucThuoc(thuoc_id=2, danh_muc_id=1)
+        # dmt4 = DanhMucThuoc(thuoc_id=2, danh_muc_id=3)
+        # db.session.add(dmt3)
+        # db.session.add(dmt4)
         #
-        # #User
+        # dmt5 = DanhMucThuoc(thuoc_id=3, danh_muc_id=3)
+        # dmt6 = DanhMucThuoc(thuoc_id=4, danh_muc_id=2)
+        # db.session.add(dmt5)
+        # db.session.add(dmt6)
+        #
+        # dmt7 = DanhMucThuoc(thuoc_id=5, danh_muc_id=3)
+        # dmt8 = DanhMucThuoc(thuoc_id=6, danh_muc_id=2)
+        # db.session.add(dmt7)
+        # db.session.add(dmt8)
+        # dmt9 = DanhMucThuoc(thuoc_id=7, danh_muc_id=1)
+        # dmt10 = DanhMucThuoc(thuoc_id=8, danh_muc_id=1)
+        # db.session.add(dmt9)
+        # db.session.add(dmt10)
+        # dmt11 = DanhMucThuoc(thuoc_id=9, danh_muc_id=1)
+        # dmt12 = DanhMucThuoc(thuoc_id=10, danh_muc_id=2)
+        # dmt13 = DanhMucThuoc(thuoc_id=11, danh_muc_id=3)
+        #
+        # db.session.add(dmt11)
+        # db.session.add(dmt12)
+        # db.session.add(dmt13)
+
+
+
+        # # User
         # user1 = User(name='admin', username='admin', password='202cb962ac59075b964b07152d234b70',
         #              email='vothanhtinh147@gmail.com',
         #              user_role='1')
         #
-        # user2 = User(name='tram', username='tram', password='202cb962ac59075b964b07152d234b70',
+        # user2 = User(name='tinh', username='tinh', password='202cb962ac59075b964b07152d234b70',
         #              email='vothanhtinh147@gmail.com',
         #              user_role='2')
         #
@@ -250,6 +243,5 @@ if __name__ == '__main__':
         # db.session.add(user3)
         # db.session.add(user4)
         # db.session.add(user5)
-        #
-        #
-        # db.session.commit()
+
+        db.session.commit()

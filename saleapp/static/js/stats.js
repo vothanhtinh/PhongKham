@@ -2,14 +2,14 @@ function billChart(labels, data){
     const ctx = document.getElementById('billMonthChart');
 
     new Chart(ctx, {
-    type: 'doughnut',
+    type: 'line',
     data: {
       labels: labels,
       datasets: [{
         label: 'Doanh thu',
         data: data,
         borderWidth: 1,
-        backgroundColor: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange', 'Black' , 'Pink', 'Brown', 'White', 'Gray', 'Lavender']
+        backgroundColor: ['#3c3e3d', '#4e4f42', '#6a44e3']
       }]
     },
     options: {

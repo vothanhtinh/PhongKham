@@ -2,11 +2,9 @@ function addToCart(i){
     let x = document.getElementsByClassName("medicine");
     let unit = document.getElementsByClassName("unit");
     let CachSD = document.getElementsByClassName("CachSD");
-
     id = x[i].value//mã thuốc
     if(id != 0)
     {
-
         fetch('/api/add-medicine-to-cart',{
         method: 'post',
         body: JSON.stringify({
@@ -32,9 +30,7 @@ function addToCart(i){
        }).catch(err => console.error(err))
    }
    else
-   {
-    console.log('id = 0')
-   }
+        console.log('id = 0')
 }
 
 function updateQuantity(line, obj){

@@ -8,8 +8,81 @@ from saleapp.models import UserRole, Thuoc, DanhMuc, DonViThuoc, User, DanhSachD
 
 
 class AuthenticatedModelView(ModelView):
+    column_display_pk = False
     def is_accessible(self):
         return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
+
+
+class UserView(AuthenticatedModelView):
+    can_view_details = True
+    can_export = True
+    can_edit = False
+    create_modal = True
+    details_modal = True
+    column_filters = ['username']
+    column_searchable_list = ['username']
+    column_exclude_list = ['active', 'ngayThamGia', 'password']
+    column_labels = {
+        'name': 'Họ và tên',
+        'username': 'Tên đăng nhập',
+        'user_role': 'Quyền',
+        'joined_date': 'Ngày tạo'
+    }
+    # form_excluded_columns = ['active', 'details', 'bills', 'joined_date']
+
+
+class UnitView(AuthenticatedModelView):
+    column_display_pk = True
+    can_view_details = True
+    can_export = True
+    create_modal = True
+    edit_modal = True
+    details_modal = True
+    column_searchable_list = ['id', 'name']
+    column_labels = {
+        'id': 'Mã đơn vị',
+        'name': 'Tên đơn vị',
+        # 'medicines': 'Thuốc'
+    }
+    form_excluded_columns = ['medicines']
+
+
+class CateView(AuthenticatedModelView):
+    can_view_details = True
+    can_export = True
+    create_modal = True
+    edit_modal = True
+    details_modal = True
+    column_searchable_list = ['id', 'name']
+    column_labels = {
+        'id': 'Mã loại thuốc',
+        'name': 'Tên loại thuốc'
+    }
+    form_excluded_columns = ['medicine']
+
+
+class MedicineView(AuthenticatedModelView):
+    can_view_details = True
+    can_export = True
+    create_modal = True
+    edit_modal = True
+    details_modal = True
+    column_searchable_list = ['id', 'name']
+    column_filters = 'id', 'name'
+    column_display_all_relations = True
+    column_exclude_list = ['phieuKhamBenh']
+    column_labels = {
+        'id': 'Mã thuốc',
+        'name': 'Tên thuốc',
+        'donViThuoc_id': 'Đơn vị tính',
+        'giaThuoc': 'Giá tiền',
+        'CachSD': 'Cách dùng',
+        'DonViThuoc': 'Đơn vị thuốc',
+        'danh_muc_thuoc': 'Danh Mục'
+        # 'cates': 'Loại thuốc',
+        # 'medicalbill': 'Đơn thuốc'
+    }
+    form_excluded_columns = ['phieuKhamBenh']
 
 
 class LogoutView(BaseView):
@@ -21,111 +94,53 @@ class LogoutView(BaseView):
     def is_accessible(self):
         return current_user.is_authenticated
 
-class UserView(AuthenticatedModelView):
-    column_display_pk = True
-    can_view_details = True
-    can_export = True
-    create_modal = True
-    edit_modal = True
-    details_modal = True
-    # column_filters = ['fullname', 'username']
-    # column_searchable_list = ['fullname', 'username']
-    # column_exclude_list = ['active', 'joined_date']
-    # column_labels = {
-    #     'id': 'STT',
-    #     'fullname': 'Họ và tên',
-    #     'username': 'Tên đăng nhập',
-    #     'password': 'Mật khẩu',
-    #     'user_role': 'Quyền',
-    #     'joined_date': 'Ngày tạo'
-    # }
-    # form_excluded_columns = ['active', 'details', 'bills', 'joined_date']
 
 class ListDetailView(AuthenticatedModelView):
     can_create = False
     edit_modal = True
     column_labels = {
-        # 'listschedule': 'Ngày khám',
-        # 'fullname': 'Tên bệnh nhân',
-        # 'gender': 'Giới tính',
-        # 'year_born': 'Năm sinh',
-        # 'address': 'Địa chỉ',
-        # 'user': 'Tên người đăng kí'
+        'tenBN': 'Tên bệnh nhân',
+        'gioiTinh': 'Giới tính',
+        'namSinh': 'Năm sinh',
+        'diaChi': 'Địa chỉ',
+        'user': 'Tên người đăng kí'
     }
-    # column_exclude_list = ['user']
-    # form_excluded_columns = ['user']
-
-class UnitView(AuthenticatedModelView):
-    column_display_pk = True
-    can_view_details = True
-    can_export = True
-    create_modal = True
-    edit_modal = True
-    details_modal = True
-    # column_searchable_list = ['id', '']
-    # column_labels = {
-    #     'id': 'Mã đơn vị',
-    #     'name': 'Tên đơn vị',
-    #     'medicines': 'Thuốc'
-    # }
-    # form_excluded_columns = ['medicines']
+    column_exclude_list = ['user']
+    form_excluded_columns = ['user']
 
 
-class CateView(AuthenticatedModelView):
-    column_display_pk = True
-    can_view_details = True
-    can_export = True
-    create_modal = True
-    edit_modal = True
-    details_modal = True
-    # column_searchable_list = ['id', 'name']
-    # column_labels = {
-    #     'id': 'Mã loại thuốc',
-    #     'name': 'Tên loại thuốc'
-    # }
-    # form_excluded_columns = ['medicine']
+class Stats(BaseView):
+    @expose('/')
+    def index(self):
+        month = request.args.get('month', datetime.now().month)
+        kw = request.args.get('kw')
+        id = request.args.get('id')
+        return self.render('admin/stats.html',
+                           medi_month_stats=dao.medicine_month_stats(kw=kw, id=id, month=month)
+        )
 
-class MedicineView(AuthenticatedModelView):
-    column_display_pk = True
-    can_view_details = True
-    can_export = True
-    create_modal = True
-    edit_modal = True
-    details_modal = True
-    # column_searchable_list = ['id', 'name', 'donViThuoc_id']
-    # column_filters = 'id', 'name', 'medicalbill'
-    # column_display_all_relations = True
-    # column_exclude_list = ['medicalbill']
-    # column_labels = {
-    #     'id': 'Mã thuốc',
-    #     'name': 'Tên thuốc',
-    #     'donViThuoc_id': 'Đơn vị tính',
-    #     'giaThuoc': 'Giá tiền',
-    #     'CachSD': 'Cách dùng',
-    #     'unitmedicine': 'Đơn vị tính',
-    #     'muc': 'Loại thuốc',
-    #     'medicalbill': 'Đơn thuốc'
-    # }
-    # form_excluded_columns = ['medicalbill']
-
-# class MyAdminIndexView(AdminIndexView):
-#     @expose('/')
-#     def index(self):
-#         total = 0
-#         month = request.args.get('month', datetime.now().month)
-#         return self.render('admin/index.html', month_stats=dao.bill_stats(month), total=dao.total_bill(month))
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.user_role.__eq__(UserRole.ADMIN)
 
 
-admin = Admin(app=app, name='Quản trị bán hàng', template_mode='bootstrap4')
+class MyAdminIndexView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        total = 0
+        month = request.args.get('month', datetime.now().month)
+        return self.render('admin/index.html', month_stats=dao.bill_stats(month), total=dao.total_bill(month))
 
-# admin.add_view(ListDetailView(DanhSachDatLich, db.session, name='Danh sách ngày khám', DanhMuc='Quản lý danh sách khám'))
-# admin.add_sub_DanhMuc(name='medicine_manager ', parent_name='Quản lý danh sách khám')
-#
-# admin.add_view(UnitView(DonViThuoc, db.session, name='Đơn vị tính', DanhMuc='Quản lý thuốc'))
-# admin.add_view(CateView(DanhMuc, db.session, name='Loại thuốc', DanhMuc='Quản lý thuốc'))
-# admin.add_view(MedicineView(Thuoc, db.session, name='Thuốc', DanhMuc='Quản lý thuốc'))
-# admin.add_sub_DanhMuc(name='medicine_manager ', parent_name='Quản lý thuốc')
 
-# admin.add_view(UserView(User, db.session, name='Người dùng'))
-# admin.add_view(Stats(name='Thống kê - báo cáo'))
+admin = Admin(app=app, name='QUẢN LÝ PHÒNG MẠCH', template_mode='bootstrap4', index_view=MyAdminIndexView())
+
+admin.add_view(ListDetailView(DanhSachDatLich, db.session, name='Danh sách đặt lịch', category='Quản lý danh sách khám'))
+admin.add_sub_category(name='medicine_manager ', parent_name='Quản lý danh sách khám')
+
+admin.add_view(UnitView(DonViThuoc, db.session, name='Đơn vị tính', category='Quản lý thuốc'))
+admin.add_view(CateView(DanhMuc, db.session, name='Loại thuốc', category='Quản lý thuốc'))
+admin.add_view(MedicineView(Thuoc, db.session, name='Thuốc', category='Quản lý thuốc'))
+admin.add_sub_category(name='medicine_manager ', parent_name='Quản lý thuốc')
+
+admin.add_view(UserView(User, db.session, name='Người dùng'))
+admin.add_view(Stats(name='Thống kê - báo cáo'))
 admin.add_view(LogoutView(name='Đăng xuất'))

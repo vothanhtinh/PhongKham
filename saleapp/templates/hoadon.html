@@ -53,7 +53,7 @@
         <div class="form-group">
             <input type="text" placeholder="Nhập mã đơn thuốc" name="medicine_bill_id" class="form-control"/>
         </div>
-        <input type="submit" value="Tìm"/>
+        <input class="btn btn-info"type="submit" value="Tìm"/>
     </form>
 </div>
 <p></p>
@@ -107,5 +107,6 @@
     </form>
 </div>
 {% endif %}
+<script src="{{ url_for('static', filename='js/bills.js') }}"></script>
 </body>
 </html>

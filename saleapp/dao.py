@@ -69,52 +69,56 @@ def get_medicine_by_id(id):
     return Thuoc.query.get(id)
 
 
-def add_MedicalBill(fullname, ngaylap, chanDoan, trieuChung, cart):
-    medicinalBill = PhieuKhamBenh(
-        fullname=fullname,
-        ngaylap=ngaylap,
-        chanDoan=chanDoan,
-        trieuChung=trieuChung,
-        user_id=current_user.id)
+def add_medical_bill(fullname, ngay_lap, chan_doan, trieu_chung, cart):
+    print(fullname, ngay_lap, chan_doan, trieu_chung)
+    print('cart: ', cart)
+    medicinal_bill = PhieuKhamBenh(fullname=fullname,
+                                   ngaylap=ngay_lap,
+                                   chanDoan=chan_doan,
+                                   trieuChung=trieu_chung,
+                                   user_id=current_user.id)
 
-    db.session.add(medicinalBill)
+    db.session.add(medicinal_bill)
     db.session.commit()
     # tạo một cái bill
-    add_Bills(medicalBill=medicinalBill, cart=cart)
+    add_Bills(medical_bill=medicinal_bill, cart=cart)
     # add medicalBillDetail
     for c in cart.values():
-        medicalBillDetail = ChiTietDonThuoc(phieuKhamBenh_id=medicinalBill.id,
-                                            Thuoc_id=c['id'],
-                                            soLuong=c['soLuong'])
-        db.session.add(medicalBillDetail)
+        medical_bill_detail = ChiTietDonThuoc(phieuKhamBenh_id=medicinal_bill.id,
+                                              Thuoc_id=c['id'],
+                                              soLuong=c['soLuong'])
+        db.session.add(medical_bill_detail)
     db.session.commit()
 
 
-
-def add_Bills(medicalBill, cart):
-    user = get_user_by_id(medicalBill.user_id)
-    bills = HoaDon(tenHD=medicalBill.fullname, ngayLapHD=medicalBill.ngaylap,
-                  tienThuoc=utils.count_cart(cart),
-                  tienKham=100000,
-                  user_id=user.id,
-                  phieuKhamBenh_id=medicalBill.id)
+def add_Bills(medical_bill, cart):
+    user = get_user_by_id(medical_bill.user_id)
+    bills = HoaDon(tenHD=medical_bill.fullname, ngayLapHD=medical_bill.ngaylap,
+                   tienThuoc=utils.count_cart(cart),
+                   tienKham=100000,
+                   user_id=user.id,
+                   phieuKhamBenh_id=medical_bill.id)
     db.session.add(bills)
     db.session.commit()
 
 
-# def bill_stats(month):
-#     p = total_bill(month)
-#     q = p[0]
-#     x = q[0]
-#
-#     p = db.session.query(extract('day', HoaDon.ngayLapHD), func.sum(HoaDon.tienThuoc + HoaDon.tienKham),
-#                          func.count(HoaDon.phieuKhamBenh_id),
-#                          func.round(((func.sum(HoaDon.tienThuoc + HoaDon.tienKham) / x) * 100), 2)) \
-#         .filter(extract('month', HoaDon.ngayLapHD) == month) \
-#         .group_by(extract('day', HoaDon.ngayLapHD)) \
-#         .order_by(extract('day', HoaDon.ngayLapHD))
-#
-#     return p.all()
+def total_bill(month):
+    return db.session.query(func.sum(HoaDon.tienThuoc + HoaDon.tienKham))\
+        .filter(extract('month', HoaDon.ngayLapHD) == month).all()
+
+
+def bill_stats(month):
+    p = total_bill(month)
+    q = p[0]
+    x = q[0]
+    p = db.session.query(extract('day', HoaDon.ngayLapHD), func.sum(HoaDon.tienThuoc + HoaDon.tienKham),
+                         func.count(HoaDon.phieuKhamBenh_id),
+                         func.round(((func.sum(HoaDon.tienThuoc + HoaDon.tienKham) / x) * 100), 2)) \
+        .filter(extract('month', HoaDon.ngayLapHD) == month) \
+        .group_by(extract('day', HoaDon.ngayLapHD)) \
+        .order_by(extract('day', HoaDon.ngayLapHD))
+
+    return p.all()
 
 
 def get_medicine_by_id(id):
@@ -124,6 +128,24 @@ def search_medicine_bill_by_id(medicine_bill_id):
     return HoaDon.query.filter(HoaDon.phieuKhamBenh_id.__eq__(medicine_bill_id))
 
 
+def reload_state_pay(bill_id):
+    p = HoaDon.query.filter(HoaDon.id.__eq__(bill_id)).first()
+    p.trangThai = True
+    db.session.commit()
 
 
+def medicine_month_stats(month, kw=None, id=None):
+    p = db.session.query(Thuoc.id, Thuoc.name, DonViThuoc.name, ChiTietDonThuoc.soLuong)\
+                    .join(ChiTietDonThuoc, ChiTietDonThuoc.Thuoc_id.__eq__(Thuoc.id), isouter=True)\
+                    .join(PhieuKhamBenh, PhieuKhamBenh.id.__eq__(ChiTietDonThuoc.phieuKhamBenh_id))\
+                    .join(DonViThuoc, Thuoc.donViThuoc_id.__eq__(DonViThuoc.id))\
+                    .join(HoaDon, HoaDon.phieuKhamBenh_id.__eq__(PhieuKhamBenh.id))\
+                    .filter(extract('month', HoaDon.ngayLapHD) == month)\
+                    .group_by(Thuoc.id, Thuoc.name)\
+                    .order_by(-ChiTietDonThuoc.soLuong)
 
+    if kw:
+        p = p.filter(Thuoc.name.contains(kw))
+    if id:
+        p = p.filter(Thuoc.id.contains(id))
+    return p.all()

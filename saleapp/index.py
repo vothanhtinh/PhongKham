@@ -120,6 +120,7 @@ def signin_admin():
 
 
 @app.route("/doctor-login", methods=['get', 'post'])
+@annonynous_user
 def doctor_login():
     err_msg = ''
     msg_success = ''
@@ -134,7 +135,7 @@ def doctor_login():
         else:
             err_msg = 'Tên đăng nhập hoặc mật khẩu không chính xác!!!'
 
-    medicine = Thuoc.query.all()
+    medicine = Thuoc.query.order_by(Thuoc.name).all()
     return render_template('phieu_kham.html', err_msg=err_msg, msg_success=msg_success, Thuoc=medicine)
 
 
@@ -157,29 +158,29 @@ def add_phieu_kham():
         try:
             key = app.config['CART_KEY']
             cart = session.get(key)
-            dao.add_MedicalBill(fullname=fullname, ngaylap=created_date, chanDoan=chanDoan, trieuChung=trieuChung,
+            dao.add_medical_bill(fullname=fullname, ngay_lap=created_date, chan_doan=chanDoan, trieu_chung=trieuChung,
                                 cart=cart)
         except Exception as err:
             err_msg = "Hệ thống báo lỗi " + str(err)
         else:
             msg_success = "Lưu phiếu thành công"
-            del session[key]
-        medicine = Thuoc.query.all()
-    return render_template('phieu_kham.html', err_msg=err_msg, Thuoc=medicine)
+        session[key] = {}
+    medicine = Thuoc.query.order_by(Thuoc.name).all()
+    return render_template('phieu_kham.html', err_msg=err_msg, Thuoc=medicine,msg_success=msg_success)
 
 
 @app.route("/api/update-quantity", methods=['put'])
 def update_quantity():
     data = request.json
     id = str(data.get('id'))
-    quantity = data.get('soLuong')
-
+    quantity = data.get('quantity')
     try:
         key = app.config['CART_KEY']
         cart = session.get(key)
         if cart and id in cart:
             cart[id]['soLuong'] = quantity
         session[key] = cart
+        print(cart)
     except:
         return jsonify({'code': 400})
 
@@ -189,9 +190,9 @@ def update_quantity():
 @app.route("/api/add-medicine-to-cart", methods=['POST'])
 def add_medicine_to_cart():
     data = request.json
-    id = str(data.get('id'))
+    thuoc_id = int(data.get('id'))
 
-    p = dao.get_medicine_by_id(id=id)
+    p = dao.get_medicine_by_id(id=thuoc_id)
     giaThuoc = p.giaThuoc
 
     key = app.config['CART_KEY']
@@ -200,22 +201,21 @@ def add_medicine_to_cart():
     # kiểm tra đã có giỏ hàng chưa
     if key in session:
         cart = session[key]  # có rồi
-        if id in cart:
-            cart[id]['soLuong'] = cart[id]['soLuong'] + 1
+    if thuoc_id in cart:
+        cart[thuoc_id]['soLuong'] = cart[thuoc_id]['soLuong'] + 1
     else:
-        cart[id] = {
-            'id': id,
+        cart[str(thuoc_id)] = {
+            'id': thuoc_id,
             'giaThuoc': giaThuoc,
             'soLuong': 1
         }
+    print(cart)
     session[key] = cart
 
-    unit = p.donViThuoc_id
-    CachSD = p.CachSD
-
     return jsonify({
-        'donViThuoc_id': unit,
-        'CachSD': CachSD
+        'donViThuoc_id': p.donViThuoc_id,
+        'CachSD': p.CachSD,
+        'thuoc_id': p.id
     })
 
 
@@ -250,6 +250,19 @@ def bills_staff():
     if medicine_bill_id:
         return render_template('hoadon.html', bills=dao.search_medicine_bill_by_id(medicine_bill_id))
     return render_template('hoadon.html', bills=bills)
+
+
+
+@app.route("/api/pay",methods=['post'])
+def pay():
+    data = request.json
+    id = str(data.get('id'))
+    try:
+        dao.reload_state_pay(id)
+    except:
+        return jsonify({'code': 400})
+
+    return jsonify({'code': 200})
 
 
 if __name__ == "__main__":
