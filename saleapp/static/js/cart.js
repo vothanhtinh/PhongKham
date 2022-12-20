@@ -111,23 +111,30 @@ function saveMedicalBill(){
     }
 }
 
-function searchMedicalHistory(){
-     let fullname=document.getElementById("fullname").value;
-     fetch('/api/search-medical-history',{
+function timKiem(){
+    let fullname=document.getElementById("fullname").value;
+    fetch('/api/timKiem',{
         method: 'post',
         body: JSON.stringify({
             'fullname': fullname
-       }),
+        }),
         headers: {
-            'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
         }
-        }).then(res => res.json()).then(data => {
-            console.info(data)
-                let name=document.getElementsByClassName("name")
-                for(let i=0; i<name.length; i++)
-                    name[i].innerText=data.name[i]
-                let quantity=document.getElementsByClassName("quantity")
-                for(let i=0; i<quantity.length; i++)
-                    quantity[i].innerText=data.quantity[i]
-       }).catch(err => console.error(err))
+    }).then(res => res.json()).then(data => {
+        console.info(data)
+        let html = `<tr>
+                            <th>Tên thuốc</th>
+                            <th>Số lượng</th>
+                        </tr>`
+        let dsachThuoc = document.getElementById('dsachThuoc')
+        dsachThuoc.style.display = "table"
+        for(let i = 0; i < data['name'].length; i++) {
+            html += `<tr>
+                <td class="name">${data['name'][i]}</td>
+                <td class="quantity">${data['quantity'][i]}</td>
+                </tr>`
+        }
+        dsachThuoc.firstElementChild.innerHTML = html
+    }).catch(err => console.error(err))
 }

@@ -3,7 +3,6 @@ from flask_login import current_user
 from sqlalchemy import extract, func
 from saleapp import utils
 from saleapp.models import *
-from saleapp.utils import count_cart, total_bill
 
 
 def get_user_by_id(user_id):
@@ -138,14 +137,28 @@ def medicine_month_stats(month, kw=None, id=None):
     p = db.session.query(Thuoc.id, Thuoc.name, DonViThuoc.name, ChiTietDonThuoc.soLuong)\
                     .join(ChiTietDonThuoc, ChiTietDonThuoc.Thuoc_id.__eq__(Thuoc.id), isouter=True)\
                     .join(PhieuKhamBenh, PhieuKhamBenh.id.__eq__(ChiTietDonThuoc.phieuKhamBenh_id))\
-                    .join(DonViThuoc, Thuoc.donViThuoc_id.__eq__(DonViThuoc.id))\
-                    .join(HoaDon, HoaDon.phieuKhamBenh_id.__eq__(PhieuKhamBenh.id))\
-                    .filter(extract('month', HoaDon.ngayLapHD) == month)\
-                    .group_by(Thuoc.id, Thuoc.name)\
-                    .order_by(-ChiTietDonThuoc.soLuong)
+                    .join(DonViThuoc, Thuoc.donViThuoc_id.__eq__(DonViThuoc.id)) \
+        .join(HoaDon, HoaDon.phieuKhamBenh_id.__eq__(PhieuKhamBenh.id)) \
+        .filter(extract('month', HoaDon.ngayLapHD) == month) \
+        .group_by(Thuoc.id, Thuoc.name) \
+        .order_by(-ChiTietDonThuoc.soLuong)
 
     if kw:
         p = p.filter(Thuoc.name.contains(kw))
     if id:
         p = p.filter(Thuoc.id.contains(id))
     return p.all()
+
+
+def timKiem(fullname):
+    return db.session.query(PhieuKhamBenh.fullname, Thuoc.name, func.sum(ChiTietDonThuoc.soLuong)) \
+                     .join(ChiTietDonThuoc, PhieuKhamBenh.id.__eq__(ChiTietDonThuoc.phieuKhamBenh_id))\
+                     .join(Thuoc, Thuoc.id.__eq__(ChiTietDonThuoc.Thuoc_id)) \
+                     .filter(PhieuKhamBenh.fullname.__eq__(fullname)) \
+                     .group_by(PhieuKhamBenh.fullname, Thuoc.name).all()
+#     return  db.session.query(PhieuKhamBenh).filter(PhieuKhamBenh.fullname.__eq__(fullname)).all()
+
+
+if __name__=="__main__":
+    with app.app_context():
+        print(timKiem(fullname="Võ Thànnh Tính"))
