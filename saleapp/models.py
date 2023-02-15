@@ -133,14 +133,16 @@ if __name__ == '__main__':
     with app.app_context():
         # db.create_all()
 
-        # # Đơn vị thuốc
+
+
         # u1 = DonViThuoc(name='Chai')
         # u2 = DonViThuoc(name='Vỹ')
         # u3 = DonViThuoc(name='Viên')
         # db.session.add(u1)
         # db.session.add(u2)
         # db.session.add(u3)
-        # # Loại thuốc
+
+
         # c1 = DanhMuc(name='Say xe')
         # c2 = DanhMuc(name='Đau bụng')
         # c3 = DanhMuc(name='Nhức đầu')
@@ -150,7 +152,7 @@ if __name__ == '__main__':
         # db.session.add(c3)
         # db.session.add(c4)
         #
-        # # #Thuốc
+
         # t1 = Thuoc(name='diphenhydramine', donViThuoc_id=3, giaThuoc=5000,
         #            CachSD='Uống trước khi khởi hàng 30 phút', )
         # t2 = Thuoc(name='dimenhydrinate', donViThuoc_id=3, giaThuoc=6000,
@@ -218,7 +220,7 @@ if __name__ == '__main__':
 
 
 
-        # # User
+
         # user1 = User(name='admin', username='admin', password='202cb962ac59075b964b07152d234b70',
         #              email='vothanhtinh147@gmail.com',
         #              user_role='1')

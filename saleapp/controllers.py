@@ -35,11 +35,11 @@ def book_schedule():
             dem = 0
             for c in count:
                 dem = dem + 1
-            if dem < 30:
+            if dem < 40:
                 dao.add_schedule(ngayTao=ngayDL, tenBN=tenBN, SDT=SDT, namSinh=namSinh, diaChi=diaChi,
                                  gioiTinh=gioiTinh)
             else:
-                full_patient = "Đủ 30 bệnh nhân trong ngày"
+                full_patient = "Đủ 40 bệnh nhân trong ngày"
         except Exception as err:
             err_msg = " Hệ thống báo lỗi " + str(err)
         else:
@@ -137,7 +137,7 @@ def add_phieu_kham():
             dao.add_medical_bill(fullname=fullname, ngay_lap=created_date, chan_doan=chanDoan, trieu_chung=trieuChung,
                                  cart=cart)
         except Exception as err:
-            err_msg = "Hệ thống báo lỗi " + str(err)
+            err_msg =  str(err)
         else:
             msg_success = "Lưu phiếu thành công"
         session[key] = {}
@@ -212,11 +212,11 @@ def staff_logout():
 
 
 def bills_staff():
-    bills = HoaDon.query.all()
+    hoadon = HoaDon.query.all()
     medicine_bill_id = request.form.get('medicine_bill_id')
     if medicine_bill_id:
         return render_template('hoadon.html', bills=dao.search_medicine_bill_by_id(medicine_bill_id))
-    return render_template('hoadon.html', bills=bills)
+    return render_template('hoadon.html', bills=hoadon)
 
 
 def pay():

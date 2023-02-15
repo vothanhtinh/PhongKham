@@ -1,0 +1,24 @@
+<div class="col-md-6">
+        <form>
+            <div class="container">
+                <h1 class="text-center">Tìm Kiếm Toa Thuốc</h1>
+                <div class="form-group">
+                    <label for="fullname">Tên bệnh nhân</label>
+                    <input type="text" name="fullname" id="fullname" class="form-control" onblur="searchMedicalHistory()"/>
+                </div>
+                <p></p>
+                <table class="table">
+                    <tr>
+                        <th>Tên thuốc</th>
+                        <th>Số lượng</th>
+                    </tr>
+                    {%for i in range(10)%}
+                    <tr>
+                        <td class="name"></td>
+                        <td class="quantity"></td>
+                    </tr>
+                    {%endfor%}
+                </table>
+            </div>
+        </form>
+    </div>

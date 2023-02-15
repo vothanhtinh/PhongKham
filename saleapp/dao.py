@@ -69,8 +69,8 @@ def get_medicine_by_id(id):
 
 
 def add_medical_bill(fullname, ngay_lap, chan_doan, trieu_chung, cart):
-    print(fullname, ngay_lap, chan_doan, trieu_chung)
-    print('cart: ', cart)
+    # print(fullname, ngay_lap, chan_doan, trieu_chung)
+    # print('cart: ', cart)
     medicinal_bill = PhieuKhamBenh(fullname=fullname,
                                    ngaylap=ngay_lap,
                                    chanDoan=chan_doan,
@@ -124,7 +124,7 @@ def get_medicine_by_id(id):
     return Thuoc.query.get(id)
 
 def search_medicine_bill_by_id(medicine_bill_id):
-    return HoaDon.query.filter(HoaDon.phieuKhamBenh_id.__eq__(medicine_bill_id))
+    return HoaDon.query.filter(HoaDon.id.__eq__(medicine_bill_id))
 
 
 def reload_state_pay(bill_id):
@@ -138,10 +138,10 @@ def medicine_month_stats(month, kw=None, id=None):
                     .join(ChiTietDonThuoc, ChiTietDonThuoc.Thuoc_id.__eq__(Thuoc.id), isouter=True)\
                     .join(PhieuKhamBenh, PhieuKhamBenh.id.__eq__(ChiTietDonThuoc.phieuKhamBenh_id))\
                     .join(DonViThuoc, Thuoc.donViThuoc_id.__eq__(DonViThuoc.id)) \
-        .join(HoaDon, HoaDon.phieuKhamBenh_id.__eq__(PhieuKhamBenh.id)) \
-        .filter(extract('month', HoaDon.ngayLapHD) == month) \
-        .group_by(Thuoc.id, Thuoc.name) \
-        .order_by(-ChiTietDonThuoc.soLuong)
+                    .join(HoaDon, HoaDon.phieuKhamBenh_id.__eq__(PhieuKhamBenh.id)) \
+                    .filter(extract('month', HoaDon.ngayLapHD) == month) \
+                    .group_by(Thuoc.id, Thuoc.name) \
+                    .order_by(ChiTietDonThuoc.soLuong)
 
     if kw:
         p = p.filter(Thuoc.name.contains(kw))
@@ -156,7 +156,6 @@ def timKiem(fullname):
                      .join(Thuoc, Thuoc.id.__eq__(ChiTietDonThuoc.Thuoc_id)) \
                      .filter(PhieuKhamBenh.fullname.__eq__(fullname)) \
                      .group_by(PhieuKhamBenh.fullname, Thuoc.name).all()
-#     return  db.session.query(PhieuKhamBenh).filter(PhieuKhamBenh.fullname.__eq__(fullname)).all()
 
 
 if __name__=="__main__":

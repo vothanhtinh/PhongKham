@@ -50,10 +50,11 @@
 <p></p>
 <div class="container">
     <form method="post" action="/bills_staff">
-        <div class="form-group">
-            <input type="text" placeholder="Nhập mã đơn thuốc" name="medicine_bill_id" class="form-control"/>
+        <div class="form-group" style="display:flex">
+            <input type="text" placeholder="Nhập mã Hóa Đơn" name="medicine_bill_id" class="form-control"/>
+             <input class="btn btn-info"type="submit" value="Tìm"/>
         </div>
-        <input class="btn btn-info"type="submit" value="Tìm"/>
+
     </form>
 </div>
 <p></p>
@@ -77,10 +78,10 @@
             <td>{{ "{:,.0f}".format(b.tienThuoc) }}</td>
             <td>{{ "{:,.0f}".format(b.tienKham + b.tienThuoc) }}</td>
             {% if b.trangThai %}
-            <td><p style="color: black;">Đã thanh toán</p></td>
+            <td><p style="color: red;">Đã thanh toán</p></td>
             {% else %}
             <td>
-                <input type="button" class="btn btn-danger" value="Thanh toán" onclick="pay({{b.id}})">
+                <input type="button" class="btn btn-info" value="Thanh toán" onclick="pay({{b.id}})">
             </td>
             {% endif %}
         </tr>
@@ -90,10 +91,6 @@
 {% else %}
 <div class="container">
     <h1 class="text-center">Đăng nhập</h1>
-    {% if err_msg %}
-    <h4 class="alter alter-danger">Error: {{err_msg}}</h4>
-    {% endif %}
-
     <form method="post" action="/staff_login">
         <div class="form-group">
             <label for="username">Tên đăng nhập</label>
@@ -107,6 +104,6 @@
     </form>
 </div>
 {% endif %}
-<script src="{{ url_for('static', filename='js/bills.js') }}"></script>
+<script src="{{ url_for('static', filename='js/hoadon.js') }}"></script>
 </body>
 </html>
